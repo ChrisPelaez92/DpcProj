@@ -1,0 +1,43 @@
+version: '3'
+services:
+  web:
+    build: ./
+    environment:
+      - PYTHONBUFFERED=1
+    ports:
+      - "80:80"
+    links:
+      - redis
+      - db
+  redis:
+    image: redis:6.0.8
+    ports:
+      - "6379:6379"
+  db:
+    image: postgres:12-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER= ${POSTGRES_USER}
+      - POSTGRES_PASSWORD= /run/secrets/shh
+      - POSTGRES_DB= ${POSTGRES_DB}
+
+    secrets:
+           - POSTGRES_USER_FILE
+           - POSTGRES_PASSWORD_FILE
+           - POSTGRES_DB_FILE
+    ports:
+      - "5432:5432"
+secrets:
+    file: /run/secrets/shh
+
+volumes:
+  postgres_data:
+
+secrets:
+  POSTGRES_USER_FILE:
+    external: true
+  POSTGRES_PASSWORD_FILE:
+    external: true
+  POSTGRES_DB_FILE:
+    external: true
